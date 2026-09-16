@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mirrorline — Applications built on precision</title>
+
+<!--
+  ============================================================
+  FONT LOADING
+  We use two families with clearly different roles:
+  - "JetBrains Mono" for headlines and section markers. This is a
+    deliberate choice, not a generic "data label" monospace — the
+    subject matter (DevOps / infra / CLI tooling) makes a
+    terminal-flavoured display face feel native rather than decorative.
+  - "Inter" for body copy, because long-form paragraphs read better
+    in a humanist sans than in a monospace face.
+  Both have real fallback stacks in the CSS below, so the page still
+  looks intentional even if the Google Fonts request is blocked.
+  ============================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     Centralising color, spacing and type here means the rest of
+     the stylesheet never hardcodes a value — change the palette
+     in one place and the whole page updates.
+     ============================================================ */
+  :root {
+    /* --- Color: graphite/terminal palette, not a stock dark theme ---
+       bg / panel give two levels of depth (page vs. "screen" surfaces).
+       accent (amber) reads like a terminal warning/status flag.
+       accent-2 (muted green) reads like a "passing" status —
+       used sparingly, only where something is confirmed/positive. */
+    --bg: #10151a;
+    --panel: #171e24;
+    --panel-raised: #1c242b;
+    --line: #2b353c;
+    --text: #e7ecee;
+    --text-dim: #8fa0a8;
+    --text-faint: #5c6a71;
+    --accent: #d9a441;
+    --accent-2: #5fa88d;
+    --danger: #c96a5a;
+
+    /* --- Type scale (rough major-third-ish progression) --- */
+    --font-display: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    --step-0: 1rem;
+    --step-1: 1.25rem;
+    --step-2: 1.75rem;
+    --step-3: 2.5rem;
+    --step-4: 3.4rem;
+
+    /* --- Layout --- */
+    --content-max: 1100px;
+    --gutter: clamp(1.25rem, 4vw, 3rem);
+    --radius: 3px; /* deliberately small — this design avoids the
+                       rounded-card look in favour of sharp, plan-like panels */
+  }
+
+  /* This design is intentionally single-theme (dark), the way a
+     terminal or an ops dashboard is — that's a brand choice for this
+     audience, not an oversight. We still declare an explicit body
+     background per the platform's theme rules. */
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img, svg { max-width: 100%; display: block; }
+
+  a { color: inherit; }
+
+  /* Respect users who've asked for less motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Visible keyboard focus everywhere — accessibility floor */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .wrap {
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
+
+  /* ============================================================
+     NAV
+     Left logo, right links. On small screens the links collapse
+     into a single row that wraps rather than a hamburger — there
+     are only three links, a hamburger would be over-engineering.
+     ============================================================ */
+  header.site {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(16, 21, 26, 0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 0;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .logo .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-2);
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .nav-links {
+    display: flex;
+    gap: 1.75rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .nav-links a:hover,
+  .nav-links a:focus-visible {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  /* ============================================================
+     HERO
+     Styled as a terminal window running an "analysis" — this is
+     the single deliberate motion moment on the page (a short
+     type-on sequence via JS), rather than fades scattered everywhere.
+     ============================================================ */
+  .hero {
+    padding: clamp(3rem, 8vw, 6rem) 0 clamp(2.5rem, 6vw, 4rem);
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+  }
+
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    color: var(--accent-2);
+    margin: 0 0 1rem;
+  }
+
+  h1.headline {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 4.2vw, var(--step-4));
+    line-height: 1.15;
+    margin: 0 0 1.25rem;
+    letter-spacing: -0.01em;
+  }
+  h1.headline .accent { color: var(--accent); }
+
+  .hero p.lede {
+    color: var(--text-dim);
+    font-size: 1.08rem;
+    max-width: 46ch;
+    margin: 0 0 2rem;
+  }
+
+  .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: var(--radius);
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary {
+    background: var(--accent);
+    color: #16110a;
+  }
+  .btn-primary:hover { background: #e6b458; }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--text);
+  }
+  .btn-ghost:hover { border-color: var(--text-dim); }
+
+  /* Terminal window mockup */
+  .terminal {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 0.9rem;
+    background: var(--panel-raised);
+    border-bottom: 1px solid var(--line);
+  }
+  .terminal-bar span {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--line);
+  }
+  .terminal-bar .title {
+    margin-left: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+  .terminal-body {
+    padding: 1.25rem 1.4rem 1.5rem;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    min-height: 220px;
+  }
+  .terminal-body .line { margin: 0 0 0.55rem; white-space: pre-wrap; }
+  .terminal-body .prompt { color: var(--accent-2); }
+  .terminal-body .dim { color: var(--text-faint); }
+  .terminal-body .ok { color: var(--accent-2); }
+  .terminal-body .warn { color: var(--accent); }
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 1em;
+    background: var(--text-dim);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ============================================================
+     SECTION HEADERS
+     Used consistently above each major section — a small
+     structural device (not decoration) that tells you which
+     "file" of the site you're in, echoing the terminal motif.
+     ============================================================ */
+  section { padding: clamp(3rem, 7vw, 5.5rem) 0; }
+  section + section { border-top: 1px solid var(--line); }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+    flex-wrap: wrap;
+  }
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+    margin: 0;
+  }
+  .section-head .path {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+  .section-lede {
+    color: var(--text-dim);
+    max-width: 60ch;
+    margin: -1.5rem 0 2.5rem;
+  }
+
+  /* ============================================================
+     ABOUT / INTRO block within hero-adjacent area
+     ============================================================ */
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  @media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; } }
+  .stat {
+    border-left: 2px solid var(--line);
+    padding-left: 1rem;
+  }
+  .stat .num {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--accent);
+    display: block;
+  }
+  .stat .label { color: var(--text-dim); font-size: 0.88rem; }
+
+  /* ============================================================
+     CASE STUDIES ("projects")
+     Styled as diff blocks (before -> after) rather than generic
+     rounded cards — this matches how the audience already reads
+     changes (git diffs) and encodes real information: what changed.
+     ============================================================ */
+  .case {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--panel);
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+  }
+  .case-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .case-head h3 {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+  .case-tag {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    border: 1px solid var(--line);
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+  .diff {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+  .diff .row {
+    padding: 0.4rem 1.4rem;
+    border-left: 3px solid transparent;
+    white-space: pre-wrap;
+  }
+  .diff .removed {
+    background: rgba(201, 106, 90, 0.08);
+    border-left-color: var(--danger);
+    color: #d8a79c;
+  }
+  .diff .added {
+    background: rgba(95, 168, 141, 0.08);
+    border-left-color: var(--accent-2);
+    color: #b9dccb;
+  }
+  .case-result {
+    padding: 0.9rem 1.4rem 1.1rem;
+    color: var(--text-dim);
+    font-size: 0.92rem;
+    border-top: 1px dashed var(--line);
+  }
+  .case-result strong { color: var(--text); }
+
+  /* ============================================================
+     CONTACT
+     Form on the left, a small "session info" panel on the right
+     that mirrors the terminal/panel language used elsewhere.
+     ============================================================ */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    align-items: start;
+  }
+  @media (max-width: 860px) { .contact-grid { grid-template-columns: 1fr; } }
+
+  form.contact-form { display: grid; gap: 1.1rem; }
+  .field { display: grid; gap: 0.4rem; }
+  .field label {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 0.75rem 0.9rem;
+    width: 100%;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--accent);
+  }
+  .field textarea { resize: vertical; min-height: 110px; }
+  .field.error input,
+  .field.error textarea { border-color: var(--danger); }
+  .field .error-msg {
+    font-size: 0.8rem;
+    color: var(--danger);
+    display: none;
+  }
+  .field.error .error-msg { display: block; }
+
+  .form-status {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    display: none;
+  }
+  .form-status.show { display: block; }
+  .form-status.success {
+    border-color: var(--accent-2);
+    color: var(--accent-2);
+    background: rgba(95,168,141,0.08);
+  }
+
+  .side-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+  .side-panel h3 {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    margin: 0 0 1rem;
+    color: var(--text-dim);
+  }
+  .side-panel dl { margin: 0; }
+  .side-panel dt {
+    font-size: 0.78rem;
+    color: var(--text-faint);
+    margin-top: 0.9rem;
+  }
+  .side-panel dt:first-child { margin-top: 0; }
+  .side-panel dd {
+    margin: 0.15rem 0 0;
+    font-size: 0.95rem;
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer.site {
+    border-top: 1px solid var(--line);
+    padding: 2rem 0;
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  footer.site a { color: var(--text-dim); text-decoration: none; }
+  footer.site a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVIGATION
+       ============================================================ -->
+  <header class="site">
+    <div class="wrap nav">
+      <a href="#top" class="logo"><span class="dot" aria-hidden="true"></span>mirrorline</a>
+      <ul class="nav-links">
+        <li><a href="#work">Case studies</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       HERO / INTRODUCTION
+       Left: headline + short intro + CTAs.
+       Right: a small terminal mockup that "types" a status report —
+       this is the page's one deliberate animated moment.
+       ============================================================ -->
+  <main id="top">
+    <section class="hero">
+      <div class="wrap" style="display:contents;">
+        <div>
+          <p class="eyebrow">// application engineering for technical roles</p>
+          <h1 class="headline">Resumes that pass<br>the <span class="accent">four‑second</span> screen.</h1>
+          <p class="lede">
+            I build job applications for DevOps, Platform, SRE and TPM candidates —
+            rewritten line by line to mirror each job description, using only the
+            experience you actually have. No invented platforms, no fabricated
+            credentials.
+          </p>
+          <div class="cta-row">
+            <a href="#contact" class="btn btn-primary">Start a resume gap check</a>
+            <a href="#work" class="btn btn-ghost">See case studies</a>
+          </div>
+        </div>
+
+        <div class="terminal" aria-hidden="true">
+          <div class="terminal-bar">
+            <span></span><span></span><span></span>
+            <span class="title">analysis.sh</span>
+          </div>
+          <div class="terminal-body" id="termBody">
+            <!-- JS below types these lines in on load -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ABOUT (part of the intro — quick, scannable credibility stats)
+         ============================================================ -->
+    <section id="about">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>About</h2>
+          <span class="path">~/about</span>
+        </div>
+        <p class="section-lede" style="margin-top:-1rem;">
+          I spend most weeks reading job descriptions for infrastructure and
+          technical program roles and reading resumes against them line by
+          line. The gap between the two is almost always translation, not
+          experience.
+        </p>
+        <div class="about-grid">
+          <div class="stat">
+            <span class="num">~200</span>
+            <span class="label">DevOps / platform resumes reviewed this year</span>
+          </div>
+          <div class="stat">
+            <span class="num">0</span>
+            <span class="label">Fabricated platforms or certifications, ever</span>
+          </div>
+          <div class="stat">
+            <span class="num">4s</span>
+            <span class="label">How long a staff engineer needs to spot a fake</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PROJECTS / CASE STUDIES
+         Each one shown as a before/after diff — this is the
+         "projects" section the brief asked for, adapted to this
+         business: the deliverable is a rewritten resume, so the
+         most honest way to show the work is the actual change.
+         ============================================================ -->
+    <section id="work">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Case studies</h2>
+          <span class="path">~/work</span>
+        </div>
+        <p class="section-lede" style="margin-top:-1rem;">
+          Three real patterns, anonymized. Each shows the original bullet,
+          the JD-mirrored rewrite, and what changed structurally.
+        </p>
+
+        <!-- Case study 1 -->
+        <article class="case">
+          <div class="case-head">
+            <h3>DevOps Engineer → Platform Engineer (title + scope match)</h3>
+            <span class="case-tag">title mirroring</span>
+          </div>
+          <div class="diff">
+            <div class="row removed">− Managed Kubernetes clusters and CI/CD pipelines for the team.</div>
+            <div class="row added">+ Owned platform reliability for 12 microservices on EKS; rebuilt CI/CD to cut deployment failures 40%.</div>
+          </div>
+          <div class="case-result">
+            <strong>Result:</strong> the JD used "Platform Engineer" and "reliability" repeatedly;
+            the candidate's real scope already matched — the rewrite made that overlap explicit
+            instead of leaving it implied.
+          </div>
+        </article>
+
+        <!-- Case study 2 -->
+        <article class="case">
+          <div class="case-head">
+            <h3>NIST 800‑53 background → FedRAMP‑adjacent role</h3>
+            <span class="case-tag">transferable skill</span>
+          </div>
+          <div class="diff">
+            <div class="row removed">− Familiar with security compliance frameworks.</div>
+            <div class="row added">+ Implemented NIST 800‑53 controls across cloud infrastructure; directly transferable to FedRAMP control families.</div>
+          </div>
+          <div class="case-result">
+            <strong>Result:</strong> genuine transferable experience, stated with enough
+            precision that a compliance-focused screener can map it themselves —
+            no claim of FedRAMP experience the candidate didn't have.
+          </div>
+        </article>
+
+        <!-- Case study 3 -->
+        <article class="case">
+          <div class="case-head">
+            <h3>TPM resume, re-ordered for a fintech JD</h3>
+            <span class="case-tag">JD re-ordering</span>
+          </div>
+          <div class="diff">
+            <div class="row removed">− Responsible for cross-functional coordination across engineering teams.</div>
+            <div class="row added">+ Ran the release process across 4 engineering teams for a payments platform, cutting release cycle time from 3 weeks to 9 days.</div>
+          </div>
+          <div class="case-result">
+            <strong>Result:</strong> same underlying work, but quantified and
+            re-ordered to the top third of the resume, matching the fintech
+            JD's language on release velocity and payments-domain context.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CONTACT
+         Simple form (name, email, target role, message) with basic
+         client-side validation. No backend is wired up — this is a
+         front-end template, so submission just shows a confirmation
+         state. Swap the JS submit handler for a real endpoint later.
+         ============================================================ -->
+    <section id="contact">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Contact</h2>
+          <span class="path">~/contact</span>
+        </div>
+
+        <div class="contact-grid">
+          <form class="contact-form" id="contactForm" novalidate>
+            <div class="field" id="field-name">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" autocomplete="name" required />
+              <span class="error-msg">Enter your name.</span>
+            </div>
+
+            <div class="field" id="field-email">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" autocomplete="email" required />
+              <span class="error-msg">Enter a valid email address.</span>
+            </div>
+
+            <div class="field" id="field-role">
+              <label for="role">Target role</label>
+              <select id="role" name="role">
+                <option value="devops">DevOps Engineer</option>
+                <option value="platform">Platform Engineer</option>
+                <option value="sre">SRE</option>
+                <option value="tpm">Technical Program Manager</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="field" id="field-message">
+              <label for="message">What are you working on?</label>
+              <textarea id="message" name="message" required></textarea>
+              <span class="error-msg">Tell me a little about what you need.</span>
+            </div>
+
+            <div>
+              <button type="submit" class="btn btn-primary">Send</button>
+            </div>
+
+            <div class="form-status" id="formStatus" role="status"></div>
+          </form>
+
+          <aside class="side-panel">
+            <h3>// session info</h3>
+            <dl>
+              <dt>Response time</dt>
+              <dd>Within 1 business day</dd>
+              <dt>Starter package</dt>
+              <dd>100 applications — $129</dd>
+              <dt>Free first step</dt>
+              <dd>Resume gap check, no charge</dd>
+            </dl>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">
+    <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; width:100%;">
+      <span>© 2026 Mirrorline. Built for technical job seekers.</span>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script>
+    /* ============================================================
+       JS PART 1 — Hero terminal "type-on" effect
+       This is the page's single deliberate animation. It runs once
+       on load, writes a few lines into the terminal mockup at a
+       readable pace, then stops (no looping, no repeated motion).
+       ============================================================ */
+    (function typeTerminal() {
+      const body = document.getElementById('termBody');
+      if (!body) return;
+
+      // Each line: the HTML to render, and a pause (ms) after it appears.
+      const lines = [
+        { html: '<span class="prompt">$</span> analyze --resume devops_resume.pdf --role "Platform Engineer"', pause: 700 },
+        { html: '<span class="dim">reading job description...</span>', pause: 500 },
+        { html: '<span class="dim">matching keywords: Kubernetes, Terraform, EKS, on-call</span>', pause: 600 },
+        { html: '<span class="warn">⚠ title mismatch: "DevOps Engineer" vs "Platform Engineer"</span>', pause: 600 },
+        { html: '<span class="ok">✓ scope overlap confirmed — rewriting summary</span>', pause: 500 },
+        { html: '<span class="ok">✓ 3 bullets quantified, 0 claims fabricated</span>', pause: 0 }
+      ];
+
+      // Respect users who've asked for reduced motion: render instantly.
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      let i = 0;
+      function nextLine() {
+        if (i >= lines.length) {
+          // Add a blinking cursor at the end once typing is done.
+          const cursor = document.createElement('span');
+          cursor.className = 'cursor';
+          body.appendChild(cursor);
+          return;
+        }
+        const el = document.createElement('p');
+        el.className = 'line';
+        el.innerHTML = lines[i].html;
+        body.appendChild(el);
+        const delay = prefersReducedMotion ? 0 : lines[i].pause;
+        i++;
+        setTimeout(nextLine, delay);
+      }
+      nextLine();
+    })();
+
+    /* ============================================================
+       JS PART 2 — Contact form validation + fake submit
+       Basic required-field checks, inline error states, and a
+       success message. No network request is made — this is a
+       static front-end template. To wire it up for real, replace
+       the body of handleSubmit() with a fetch() call to your
+       form backend (e.g. Formspree, a serverless function, etc.)
+       ============================================================ */
+    (function contactForm() {
+      const form = document.getElementById('contactForm');
+      const status = document.getElementById('formStatus');
+      if (!form) return;
+
+      function setError(fieldId, hasError) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+        field.classList.toggle('error', hasError);
+      }
+
+      function isValidEmail(value) {
+        // Simple, readable check — not a full RFC validator, just
+        // enough to catch obvious mistakes like a missing "@".
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
+
+        const nameOk = name.length > 0;
+        const emailOk = isValidEmail(email);
+        const messageOk = message.length > 0;
+
+        setError('field-name', !nameOk);
+        setError('field-email', !emailOk);
+        setError('field-message', !messageOk);
+
+        if (!nameOk || !emailOk || !messageOk) {
+          status.textContent = 'Please fix the highlighted fields.';
+          status.className = 'form-status show';
+          return;
+        }
+
+        // All good — show a success state. Replace this block with
+        // a real submission (fetch/POST) when you have a backend.
+        status.textContent = '✓ Message received — I\'ll reply within 1 business day.';
+        status.className = 'form-status show success';
+        form.reset();
+      });
+    })();
+  </script>
+
+</body>
+</html>
