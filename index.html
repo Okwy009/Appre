@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mirrorline — Applications built on precision</title>
+<title>Appre — Applications built on precision</title>
+
+<!-- Favicon: same terminal-tile mark as the nav logo, with the token
+     colors hardcoded as static hex since a data-URI image can't read
+     this page's CSS custom properties. Update both together if the
+     palette ever changes. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Crect x='0.75' y='0.75' width='20.5' height='20.5' rx='5' fill='%231c242b' stroke='%232b353c'/%3E%3Ctext x='4.5' y='15.5' font-family='monospace' font-size='12' font-weight='700' fill='%23d9a441'%3E%3E%3C/text%3E%3Crect x='13.5' y='6.5' width='2.6' height='9' rx='0.5' fill='%235fa88d'/%3E%3C/svg%3E" />
 
 <!--
   ============================================================
@@ -137,15 +143,11 @@
     letter-spacing: 0.02em;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.55rem;
   }
-  .logo .dot {
-    width: 8px;
-    height: 8px;
-    background: var(--accent-2);
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
+  .logo-mark { flex-shrink: 0; }
+  .logo-mark .cursor-beat {
+    animation: blink 1.6s step-end infinite;
   }
   .nav-links {
     display: flex;
@@ -176,13 +178,15 @@
      ============================================================ */
   .hero {
     padding: clamp(3rem, 8vw, 6rem) 0 clamp(2.5rem, 6vw, 4rem);
+  }
+  .hero-grid {
     display: grid;
     grid-template-columns: 1.1fr 1fr;
     gap: clamp(2rem, 5vw, 4rem);
     align-items: center;
   }
   @media (max-width: 860px) {
-    .hero { grid-template-columns: 1fr; }
+    .hero-grid { grid-template-columns: 1fr; }
   }
 
   .eyebrow {
@@ -393,6 +397,13 @@
     border-left-color: var(--accent-2);
     color: #b9dccb;
   }
+  /* "Declined" rows use the amber accent rather than red or green —
+     this isn't an error (red) or a win (green), it's an honest call. */
+  .diff .declined {
+    background: rgba(217, 164, 65, 0.08);
+    border-left-color: var(--accent);
+    color: #e6cfa0;
+  }
   .case-result {
     padding: 0.9rem 1.4rem 1.1rem;
     color: var(--text-dim);
@@ -400,6 +411,93 @@
     border-top: 1px dashed var(--line);
   }
   .case-result strong { color: var(--text); }
+
+  /* ============================================================
+     PRICING
+     A real table, not a row of rounded price-cards — this matches
+     how the rest of the page treats structured data (the diff
+     blocks, the stat grid) and scans faster than cards would for
+     five comparable rows.
+     ============================================================ */
+  .pricing-table-wrap {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  table.pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    min-width: 640px;
+  }
+  .pricing-table th,
+  .pricing-table td {
+    text-align: left;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .pricing-table thead th {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    font-weight: 500;
+    background: var(--panel);
+  }
+  .pricing-table tbody tr:last-child td { border-bottom: none; }
+  .pricing-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+  .pricing-table .pkg-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--text);
+  }
+  .pricing-table .pkg-price {
+    font-family: var(--font-display);
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .pricing-table .pkg-best {
+    color: var(--text-dim);
+  }
+  .pricing-table tr.featured .pkg-name { color: var(--accent-2); }
+  .pricing-table tr.featured td { background: rgba(95,168,141,0.05); }
+
+  /* ============================================================
+     REFERRAL
+     Tiers shown as a short ladder rather than three identical
+     cards — the point is progression, so the layout should read
+     top-to-bottom as a sequence (this is one of the few places on
+     the page where a numbered/ordered device is actually earned,
+     since the content really is a sequence of thresholds).
+     ============================================================ */
+  .referral-ladder {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .referral-tier {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 1.2rem;
+    padding: 1.1rem 1.4rem;
+    align-items: baseline;
+  }
+  .referral-tier + .referral-tier { border-top: 1px solid var(--line); }
+  .referral-tier .count {
+    font-family: var(--font-display);
+    color: var(--accent-2);
+    font-size: 0.85rem;
+  }
+  .referral-tier .reward { color: var(--text); }
+  .referral-fine {
+    margin-top: 1.5rem;
+    padding: 1.2rem 1.4rem;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius);
+    color: var(--text-faint);
+    font-size: 0.82rem;
+    line-height: 1.65;
+  }
 
   /* ============================================================
      CONTACT
@@ -511,10 +609,20 @@
        ============================================================ -->
   <header class="site">
     <div class="wrap nav">
-      <a href="#top" class="logo"><span class="dot" aria-hidden="true"></span>mirrorline</a>
+      <a href="#top" class="logo">
+        <svg class="logo-mark" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+          <rect x="0.75" y="0.75" width="20.5" height="20.5" rx="5" style="fill:var(--panel-raised); stroke:var(--line); stroke-width:1;" />
+          <text x="4.5" y="15.5" style="font-family:var(--font-display); font-size:12px; font-weight:700; fill:var(--accent);">&gt;</text>
+          <rect class="cursor-beat" x="13.5" y="6.5" width="2.6" height="9" rx="0.5" style="fill:var(--accent-2);" />
+        </svg>
+        appre
+      </a>
       <ul class="nav-links">
         <li><a href="#work">Case studies</a></li>
         <li><a href="#about">About</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#referrals">Referrals</a></li>
+        <li><a href="#proof">Proof</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </div>
@@ -528,15 +636,17 @@
        ============================================================ -->
   <main id="top">
     <section class="hero">
-      <div class="wrap" style="display:contents;">
+      <div class="wrap hero-grid">
         <div>
           <p class="eyebrow">// application engineering for technical roles</p>
-          <h1 class="headline">Resumes that pass<br>the <span class="accent">four‑second</span> screen.</h1>
+          <h1 class="headline">Resumes that survive<br>the <span class="accent">skim</span>.</h1>
           <p class="lede">
             I build job applications for DevOps, Platform, SRE and TPM candidates —
             rewritten line by line to mirror each job description, using only the
-            experience you actually have. No invented platforms, no fabricated
-            credentials.
+            experience you actually have.
+          </p>
+          <p class="lede" style="margin-top:-1.25rem;">
+            No invented platforms. No fabricated credentials. Ever.
           </p>
           <div class="cta-row">
             <a href="#contact" class="btn btn-primary">Start a resume gap check</a>
@@ -577,12 +687,12 @@
             <span class="label">DevOps / platform resumes reviewed this year</span>
           </div>
           <div class="stat">
-            <span class="num">0</span>
-            <span class="label">Fabricated platforms or certifications, ever</span>
+            <span class="num">✓</span>
+            <span class="label">Every rewrite checked line-by-line against your real resume — nothing added that isn't yours</span>
           </div>
           <div class="stat">
-            <span class="num">4s</span>
-            <span class="label">How long a staff engineer needs to spot a fake</span>
+            <span class="num">1:1</span>
+            <span class="label">One JD, one rewrite — no template blasted at hundreds of postings</span>
           </div>
         </div>
       </div>
@@ -602,8 +712,9 @@
           <span class="path">~/work</span>
         </div>
         <p class="section-lede" style="margin-top:-1rem;">
-          Three real patterns, anonymized. Each shows the original bullet,
-          the JD-mirrored rewrite, and what changed structurally.
+          Four real patterns, anonymized. Each shows the original bullet,
+          the JD-mirrored rewrite, and what changed structurally — including
+          the one where the honest answer was "this isn't a fit."
         </p>
 
         <!-- Case study 1 -->
@@ -656,6 +767,162 @@
             JD's language on release velocity and payments-domain context.
           </div>
         </article>
+
+        <!-- Case study 4 — the honest decline. This is deliberately
+             different from the other three: there's no "after" bullet,
+             because the honest answer was that the experience didn't
+             transfer. It backs up the "no fabricated credentials" claim
+             with an actual example instead of just asserting it. -->
+        <article class="case">
+          <div class="case-head">
+            <h3>FedRAMP-cleared role, no FedRAMP experience (declined)</h3>
+            <span class="case-tag">honest gap</span>
+          </div>
+          <div class="diff">
+            <div class="row declined">⚠ JD required active FedRAMP authorization work. Candidate's background was NIST 800‑53 only, on internal systems that never went through a FedRAMP assessment boundary.</div>
+          </div>
+          <div class="case-result">
+            <strong>Result:</strong> told the candidate directly this was a gap, not a stretch —
+            no rewrite was built for this posting. We applied to three adjacent roles instead,
+            where the NIST 800‑53 background was a genuine, statable match.
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PRICING
+         ============================================================ -->
+    <section id="pricing">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Pricing</h2>
+          <span class="path">~/pricing</span>
+        </div>
+        <p class="section-lede" style="margin-top:-1rem;">
+          Every package covers tailored, JD-mirrored applications — not a
+          single resume blasted at every posting. Interview rate depends
+          heavily on your existing resume and experience going in; pricing
+          reflects application volume, not a guaranteed outcome.
+        </p>
+
+        <div class="pricing-table-wrap">
+          <table class="pricing-table">
+            <thead>
+              <tr>
+                <th>Package</th>
+                <th>Applications</th>
+                <th>Price</th>
+                <th>Best for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="pkg-name">Starter</td>
+                <td>Up to 100</td>
+                <td class="pkg-price">$100 one time</td>
+                <td class="pkg-best">Starting or restarting your search</td>
+              </tr>
+              <tr>
+                <td class="pkg-name">Momentum</td>
+                <td>Up to 200</td>
+                <td class="pkg-price">$190 one time</td>
+                <td class="pkg-best">Building a consistent pipeline</td>
+              </tr>
+              <tr>
+                <td class="pkg-name">Accelerator</td>
+                <td>Up to 300</td>
+                <td class="pkg-price">$275 one time</td>
+                <td class="pkg-best">Pursuing multiple opportunities at once</td>
+              </tr>
+              <tr>
+                <td class="pkg-name">Monthly Search Plan</td>
+                <td>Up to 350 / month</td>
+                <td class="pkg-price">$300 / month</td>
+                <td class="pkg-best">Ongoing, continuous application activity</td>
+              </tr>
+              <tr class="featured">
+                <td class="pkg-name">Pro+ 3-Month Plan</td>
+                <td>Up to 350 / month, 3 months</td>
+                <td class="pkg-price">$800 one time</td>
+                <td class="pkg-best">A focused, sustained 3-month campaign</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:1.75rem;">
+          <a href="#contact" class="btn btn-primary">Start with a resume gap check</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         REFERRAL REWARDS
+         Shown as an ordered ladder (1 / 2 / 3 referrals) since this
+         content genuinely is a sequence of thresholds, unlike most
+         of the page where numbered markers would just be decoration.
+         ============================================================ -->
+    <section id="referrals">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Referral rewards</h2>
+          <span class="path">~/referrals</span>
+        </div>
+        <p class="section-lede" style="margin-top:-1rem;">
+          Share this with someone who'd benefit. They get 10% off their
+          first eligible package the moment they sign up through your
+          referral. Your reward scales with total successful referrals.
+        </p>
+
+        <div class="referral-ladder">
+          <div class="referral-tier">
+            <span class="count">1 referral</span>
+            <span class="reward">10% off your next eligible package</span>
+          </div>
+          <div class="referral-tier">
+            <span class="count">2 referrals</span>
+            <span class="reward">30% off your next eligible package</span>
+          </div>
+          <div class="referral-tier">
+            <span class="count">3 referrals</span>
+            <span class="reward">100 complimentary tailored applications, applied to your next paid package or active plan</span>
+          </div>
+        </div>
+
+        <div class="referral-fine">
+          <strong style="color:var(--text-dim);">Terms:</strong>
+          A successful referral is a new customer (no prior purchase with us)
+          who completes payment for an eligible package. Rewards expire 90
+          days after issue, are non-transferable, non-cash, and can't be
+          combined with other offers. Referrer and referred customer must be
+          different people with different payment methods and account
+          details. We reserve the right to verify referrals before issuing
+          rewards.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PROOF / TESTIMONIAL PLACEHOLDER
+         Deliberately left as a visible placeholder rather than filled
+         with an invented quote — swap the bracketed text for a real,
+         attributable client quote before this goes live. A fabricated
+         testimonial would undercut the exact "no fabrication" claim
+         this page is built around.
+         ============================================================ -->
+    <section id="proof">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Proof</h2>
+          <span class="path">~/proof</span>
+        </div>
+        <div style="border:1px dashed var(--line); border-radius:var(--radius); padding:1.75rem; color:var(--text-faint); font-family:var(--font-display); font-size:0.9rem;">
+          [ Add a real, attributable client quote here — name, role, and
+          what changed for them. A testimonial-shaped placeholder is
+          worse than no testimonial at all; leave this section out
+          entirely until you have one you can stand behind. ]
+        </div>
       </div>
     </section>
 
@@ -688,14 +955,9 @@
             </div>
 
             <div class="field" id="field-role">
-              <label for="role">Target role</label>
-              <select id="role" name="role">
-                <option value="devops">DevOps Engineer</option>
-                <option value="platform">Platform Engineer</option>
-                <option value="sre">SRE</option>
-                <option value="tpm">Technical Program Manager</option>
-                <option value="other">Other</option>
-              </select>
+              <label for="role">Target role(s)</label>
+              <input type="text" id="role" name="role" placeholder="e.g. Platform Engineer, SRE, TPM" required />
+              <span class="error-msg">Tell us which role(s) you're targeting.</span>
             </div>
 
             <div class="field" id="field-message">
@@ -717,7 +979,7 @@
               <dt>Response time</dt>
               <dd>Within 1 business day</dd>
               <dt>Starter package</dt>
-              <dd>100 applications — $129</dd>
+              <dd>100 applications — $100</dd>
               <dt>Free first step</dt>
               <dd>Resume gap check, no charge</dd>
             </dl>
@@ -729,7 +991,7 @@
 
   <footer class="site">
     <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; width:100%;">
-      <span>© 2026 Mirrorline. Built for technical job seekers.</span>
+      <span>© 2026 Appre. Built for technical job seekers.</span>
       <a href="#top">Back to top ↑</a>
     </div>
   </footer>
@@ -746,12 +1008,14 @@
       if (!body) return;
 
       // Each line: the HTML to render, and a pause (ms) after it appears.
+      // Kept short on purpose (whole sequence finishes in well under a
+      // second) — this is texture, not a delay gate in front of the CTA.
       const lines = [
-        { html: '<span class="prompt">$</span> analyze --resume devops_resume.pdf --role "Platform Engineer"', pause: 700 },
-        { html: '<span class="dim">reading job description...</span>', pause: 500 },
-        { html: '<span class="dim">matching keywords: Kubernetes, Terraform, EKS, on-call</span>', pause: 600 },
-        { html: '<span class="warn">⚠ title mismatch: "DevOps Engineer" vs "Platform Engineer"</span>', pause: 600 },
-        { html: '<span class="ok">✓ scope overlap confirmed — rewriting summary</span>', pause: 500 },
+        { html: '<span class="prompt">$</span> analyze --resume devops_resume.pdf --role "Platform Engineer"', pause: 90 },
+        { html: '<span class="dim">reading job description...</span>', pause: 70 },
+        { html: '<span class="dim">matching keywords: Kubernetes, Terraform, EKS, on-call</span>', pause: 80 },
+        { html: '<span class="warn">⚠ title mismatch: "DevOps Engineer" vs "Platform Engineer"</span>', pause: 80 },
+        { html: '<span class="ok">✓ scope overlap confirmed — rewriting summary</span>', pause: 70 },
         { html: '<span class="ok">✓ 3 bullets quantified, 0 claims fabricated</span>', pause: 0 }
       ];
 
@@ -779,16 +1043,22 @@
     })();
 
     /* ============================================================
-       JS PART 2 — Contact form validation + fake submit
-       Basic required-field checks, inline error states, and a
-       success message. No network request is made — this is a
-       static front-end template. To wire it up for real, replace
-       the body of handleSubmit() with a fetch() call to your
-       form backend (e.g. Formspree, a serverless function, etc.)
+       JS PART 2 — Contact form validation + real submit
+       Basic required-field checks and inline error states, then an
+       actual network request on top of them.
+
+       Submits via fetch() as JSON with an Accept: application/json
+       header, which is what Formspree's AJAX endpoint expects — no
+       extra client library needed. The REPLACE_WITH_YOUR_FORM_ENDPOINT
+       fallback check below is left in place as a safety net in case
+       this endpoint ever gets reset to a placeholder.
        ============================================================ */
     (function contactForm() {
+      const FORM_ENDPOINT = 'https://formspree.io/f/xnpnakew';
+
       const form = document.getElementById('contactForm');
       const status = document.getElementById('formStatus');
+      const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
       if (!form) return;
 
       function setError(fieldId, hasError) {
@@ -803,32 +1073,60 @@
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
       }
 
-      form.addEventListener('submit', function (e) {
+      form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
+        const role = document.getElementById('role').value.trim();
         const message = document.getElementById('message').value.trim();
 
         const nameOk = name.length > 0;
         const emailOk = isValidEmail(email);
+        const roleOk = role.length > 0;
         const messageOk = message.length > 0;
 
         setError('field-name', !nameOk);
         setError('field-email', !emailOk);
+        setError('field-role', !roleOk);
         setError('field-message', !messageOk);
 
-        if (!nameOk || !emailOk || !messageOk) {
+        if (!nameOk || !emailOk || !roleOk || !messageOk) {
           status.textContent = 'Please fix the highlighted fields.';
           status.className = 'form-status show';
           return;
         }
 
-        // All good — show a success state. Replace this block with
-        // a real submission (fetch/POST) when you have a backend.
-        status.textContent = '✓ Message received — I\'ll reply within 1 business day.';
-        status.className = 'form-status show success';
-        form.reset();
+        // Endpoint not configured yet — say so plainly instead of
+        // faking a success state. This is the fallback, not the goal.
+        if (FORM_ENDPOINT === 'REPLACE_WITH_YOUR_FORM_ENDPOINT') {
+          status.textContent = '⚠ Form endpoint not configured yet — this submission was not sent anywhere. See the setup checklist.';
+          status.className = 'form-status show';
+          console.warn('Appre contact form: set FORM_ENDPOINT to a real form-handling URL before going live.');
+          return;
+        }
+
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending...'; }
+
+        try {
+          const response = await fetch(FORM_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ name, email, role, message })
+          });
+
+          if (!response.ok) throw new Error('Request failed with status ' + response.status);
+
+          status.textContent = '✓ Message received — I\'ll reply within 1 business day.';
+          status.className = 'form-status show success';
+          form.reset();
+        } catch (err) {
+          console.error('Appre contact form submission failed:', err);
+          status.textContent = '⚠ Something went wrong sending that — try again, or email directly for now.';
+          status.className = 'form-status show';
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send'; }
+        }
       });
     })();
   </script>
