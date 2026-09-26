@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gap check tool — Appre</title>
+<meta name="description" content="Paste a job description and your resume. Get a structured, rule-based readout of likely keyword matches and gaps — free, runs in your browser.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 26 26%22><rect width=%2226%22 height=%2226%22 rx=%226%22 fill=%22%23fbf6ec%22/><text x=%2213%22 y=%2218%22 font-family=%22Georgia,serif%22 font-size=%2215%22 fill=%22%23b9432c%22 text-anchor=%22middle%22>&gt;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .gc-shell { max-width: 44rem; }
+  .gc-progress { font-family: var(--sans); font-weight: 600; font-size: 0.84rem; color: var(--coral-text); margin-bottom: 1.2rem; }
+  .gc-actions { display: flex; gap: 0.8rem; margin-top: 0.4rem; flex-wrap: wrap; }
+  #gc-results { scroll-margin-top: 5rem; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topnav">
+  <div class="topnav__row">
+    <a class="brand" href="index.html">
+      <svg class="brand__mark" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="25" height="25" rx="6" fill="none" stroke="#cdb896"/>
+        <text x="8" y="18" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#b9432c">&gt;</text>
+        <rect x="14" y="15.5" width="7" height="2" fill="#3f6b4d"/>
+      </svg>
+      appre
+    </a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+    <nav id="primary-nav" aria-label="Primary">
+      <ul class="navlinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="case-studies.html">Case studies</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="tool.html" aria-current="page">Gap check tool</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li class="nav-cta-mobile"><a class="btn btn--primary" href="contact.html">Get in touch</a></li>
+      </ul>
+    </nav>
+    <a class="nav-cta" href="contact.html">Get in touch</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero hero--sub shell" style="padding-bottom: 1.5rem;">
+    <div class="hero__row hero__row--solo">
+      <div>
+        <span class="hero__label">Free first-pass comparison</span>
+        <h1 class="hero__title">Gap check tool</h1>
+        <p class="hero__sub gc-shell">Compare a job posting with your resume or experience notes. This free tool scans for shared terms and phrases, then shows likely matches and gaps. It's a simple rule-based scan, not a human review or a hiring prediction. Your text stays in your browser and isn't sent to us.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section shell section--tight gc-shell">
+    <p class="gc-progress" id="gc-progress" aria-live="polite">Step 1 of 2</p>
+
+    <form id="gc-step-1" novalidate>
+      <div class="field">
+        <label for="gc-title">Target job title (optional)</label>
+        <input type="text" id="gc-title" name="title" placeholder="e.g. Senior Operations Analyst">
+        <p class="field__hint">Used only to check whether similar title language appears in your text.</p>
+      </div>
+      <div class="field">
+        <label for="gc-jd">Job description or key requirements</label>
+        <textarea id="gc-jd" name="jd" rows="10" placeholder="Paste the posting, or just the requirements/qualifications section." required></textarea>
+        <p class="field__hint" id="gc-jd-error" hidden role="alert" style="color: var(--rust);">Paste at least a few sentences — a single line usually isn't enough to extract anything useful.</p>
+      </div>
+      <div class="gc-actions">
+        <button type="button" class="btn btn--primary" id="gc-to-step-2">Continue</button>
+      </div>
+    </form>
+
+    <form id="gc-step-2" hidden novalidate>
+      <div class="field">
+        <label for="gc-resume">Your resume or experience notes</label>
+        <textarea id="gc-resume" name="resume" rows="12" placeholder="Paste your resume text, or a list of bullets describing your experience." required></textarea>
+        <p class="field__hint" id="gc-resume-error" hidden role="alert" style="color: var(--rust);">Paste at least a few sentences of real experience to compare against.</p>
+      </div>
+      <div class="gc-actions">
+        <button type="button" class="btn btn--ghost" id="gc-back">Back</button>
+        <button type="button" class="btn btn--primary" id="gc-run">Run gap check</button>
+      </div>
+    </form>
+
+    <div id="gc-results" hidden style="margin-top: 2.2rem;"></div>
+
+    <div class="gc-actions" style="margin-top: 1.5rem;">
+      <button type="button" class="btn btn--ghost" id="gc-restart">Start over</button>
+    </div>
+  </section>
+
+  <section class="section shell gc-shell">
+    <h2>What this tool can't tell you</h2>
+    <p class="dim">A phrase match can't tell whether two experiences are truly equivalent, and the scan may miss terms it doesn't recognize. It also can't weigh context the way a person can; that's part of the full service. See <a href="how-it-works.html">how it works</a> or compare <a href="pricing.html">packages</a>.</p>
+  </section>
+</main>
+
+<footer class="sitefoot shell">
+  <div class="sitefoot__row">
+    <span>Appre — resume and application service.</span>
+    <ul class="footlinks">
+      <li><a href="how-it-works.html">How it works</a></li>
+      <li><a href="case-studies.html">Case studies</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="tool.html">Gap check tool</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/gapcheck.js"></script>
+</body>
+</html>

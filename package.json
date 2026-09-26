@@ -1,0 +1,10 @@
+{
+  "name": "appre-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Appre — static, multi-page resume and job-application service site. No build step; plain HTML/CSS/JS plus one optional serverless function.",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  }
+}

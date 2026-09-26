@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case studies — Appre</title>
+<meta name="description" content="Browse before/after resume rewrite examples across industries and role types, filterable by field and situation.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 26 26%22><rect width=%2226%22 height=%2226%22 rx=%226%22 fill=%22%23fbf6ec%22/><text x=%2213%22 y=%2218%22 font-family=%22Georgia,serif%22 font-size=%2215%22 fill=%22%23b9432c%22 text-anchor=%22middle%22>&gt;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topnav">
+  <div class="topnav__row">
+    <a class="brand" href="index.html">
+      <svg class="brand__mark" viewBox="0 0 26 26" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="25" height="25" rx="6" fill="none" stroke="#cdb896"/>
+        <text x="8" y="18" font-family="'IBM Plex Mono', monospace" font-size="13" fill="#b9432c">&gt;</text>
+        <rect x="14" y="15.5" width="7" height="2" fill="#3f6b4d"/>
+      </svg>
+      appre
+    </a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+    <nav id="primary-nav" aria-label="Primary">
+      <ul class="navlinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="how-it-works.html">How it works</a></li>
+        <li><a href="case-studies.html" aria-current="page">Case studies</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="tool.html">Gap check tool</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li class="nav-cta-mobile"><a class="btn btn--primary" href="tool.html">Run a gap check</a></li>
+      </ul>
+    </nav>
+    <a class="nav-cta" href="tool.html">Run a gap check</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero hero--sub shell" style="padding-bottom: 1.5rem;">
+    <div class="hero__row hero__row--solo">
+      <div>
+        <span class="hero__label">evidence</span>
+        <h1 class="hero__title">Case studies</h1>
+        <p class="hero__sub">See how a resume can answer a specific job posting. Compare nine examples across industries and situations, from first roles to career changes and promotions.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="shell" style="padding-bottom: 1rem;">
+    <div class="panel small dim">
+      <strong style="color: var(--ink); font-family: var(--sans); font-weight: 600;">About these examples — </strong>
+      Each is a composite for illustration, not an individual client's resume. We don't publish client resumes without consent or claim interview and offer outcomes for these examples. Use the before-and-after and gap note to judge the method for yourself.
+    </div>
+  </section>
+
+  <section class="section shell section--tight">
+    <div class="flex-between" style="margin-bottom: 1.6rem;">
+      <div class="grid-2" style="flex: 1; gap: 1.2rem; max-width: 40rem;">
+        <div class="field mb-0">
+          <label for="filter-industry">Industry</label>
+          <select id="filter-industry">
+            <option value="all">All industries</option>
+          </select>
+        </div>
+        <div class="field mb-0">
+          <label for="filter-situation">Situation</label>
+          <select id="filter-situation">
+            <option value="all">All situations</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <p class="small faint" id="cs-count" aria-live="polite" style="margin-bottom: 1.4rem;"></p>
+    <div id="cs-results"></div>
+  </section>
+
+  <section class="section shell">
+    <div class="panel flex-between">
+      <div>
+        <h3 class="mt-0" style="margin-bottom: 0.3rem;">Want a gap-check like these, on your own posting?</h3>
+        <p class="dim mb-0 small">The free tool runs a simplified version of the same comparison.</p>
+      </div>
+      <a class="btn btn--primary" href="tool.html">Run a gap check</a>
+    </div>
+  </section>
+</main>
+
+<footer class="sitefoot shell">
+  <div class="sitefoot__row">
+    <span>Appre — resume and application service.</span>
+    <ul class="footlinks">
+      <li><a href="how-it-works.html">How it works</a></li>
+      <li><a href="case-studies.html">Case studies</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="tool.html">Gap check tool</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/case-studies.js"></script>
+</body>
+</html>
